@@ -1,0 +1,54 @@
+version: '3.4'
+
+services:
+  project_01:
+    image: project01
+    container_name: Project-01
+    build:
+      context: .
+      dockerfile: Project_01/Dockerfile
+     
+    networks: 
+      - web_api_network
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  postgres:
+    image: postgres
+    container_name: postgres-container
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: blog_db
+      PGDATA: /data/postgres
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - web_api_network
+    restart: unless-stopped
+
+  pgadmin:
+     image: dpage/pgadmin4
+     container_name: pgadmin-container
+     environment:
+        PGADMIN_DEFAULT_EMAIL: sadeqmozaffari@gmail.com
+        PGADMIN_DEFAULT_PASSWORD: 12345
+     volumes:
+        - pgadmin:/var/lib/pgadmin
+     ports:
+        - "8135:80"
+     networks:
+        - web_api_network
+     restart: unless-stopped
+     depends_on:
+        - postgres 
+volumes:
+  postgres:
+  pgadmin:
+
+networks:
+  web_api_network:
+     driver: bridge
